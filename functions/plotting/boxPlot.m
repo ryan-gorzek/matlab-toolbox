@@ -53,8 +53,8 @@ arguments
     
     inputData double
     NameValueArgs.inputLabels (:,1) double = []
-    NameValueArgs.groupSize (1,1) {mustBeNumeric} = 1
-    NameValueArgs.labelGroup = false
+    NameValueArgs.groupSize (1,1) double = 1
+    NameValueArgs.labelGroup logical = false
     NameValueArgs.boxLabels (1,:) {mustBeA(NameValueArgs.boxLabels,'cell'),mustBeText} = {}
     NameValueArgs.boxColors (1,:) {mustBeA(NameValueArgs.boxColors,'cell')} = {}
     NameValueArgs.pointSize (1,1) double = 30

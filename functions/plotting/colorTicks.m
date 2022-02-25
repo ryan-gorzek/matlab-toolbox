@@ -22,7 +22,7 @@ function plotLabels = colorTicks(tickLabels,tickColors,NameValueArgs)
 
 arguments
     
-    tickLabels (1,:) {mustBeA(tickLabels,'cell')}
+    tickLabels (1,:) {mustBeA(tickLabels,'cell'),mustBeText}
     tickColors (1,:) {mustBeA(tickColors,'cell')}
     NameValueArgs.task {mustBeMember(NameValueArgs.task,{'display','return'})} = 'display'
     NameValueArgs.axis {mustBeMember(NameValueArgs.axis,{'x','y','z'})} = 'x'

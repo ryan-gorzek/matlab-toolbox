@@ -14,7 +14,7 @@ function setStyle(NameValueArgs)
 %
 %     xticks (automatic) -- vector that specifies x-axis tick marks
 %
-%     xticklabels (automatic) -- cell array of strings that specify x-axis tick labels
+%     xticklabels (automatic) -- vector of doubles or cell array of strings that specify x-axis tick labels
 %
 %     xtickangle (automatic) -- scalar that specifies x-axis tick label angle
 %
@@ -24,7 +24,7 @@ function setStyle(NameValueArgs)
 %
 %     yticks (automatic) -- vector that specifies y-axis tick marks
 %
-%     yticklabels (automatic) -- cell array of strings that specify y-axis tick labels
+%     yticklabels (automatic) -- vector of doubles or cell array of strings that specify y-axis tick labels
 %
 %     ytickangle (automatic) -- scalar that specifies y-axis tick label angle
 %
@@ -40,12 +40,12 @@ arguments
     NameValueArgs.title (1,1) string = ''
     NameValueArgs.xlabel (1,1) string = ''
     NameValueArgs.xticks (1,:) double = []
-    NameValueArgs.xticklabels = []
+    NameValueArgs.xticklabels (1,:) = []
     NameValueArgs.xtickangle (1,1) double = []
     NameValueArgs.xlim (1,2) double = []
     NameValueArgs.ylabel (1,1) string = ''
     NameValueArgs.yticks (1,:) double = []
-    NameValueArgs.yticklabels = []
+    NameValueArgs.yticklabels (1,:) = []
     NameValueArgs.ytickangle (1,1) double = []
     NameValueArgs.ylim (1,2) double = []
     NameValueArgs.fontSize (1,1) double = 13
