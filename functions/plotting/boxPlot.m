@@ -32,6 +32,8 @@ function [xCoordinates,lgdObject,handleObject] = boxPlot(inputData,NameValueArgs
 %
 %     lgdLocation ('northeast') -- string that specifies legend location. See MATLAB legend documentation for options.
 %
+%     lgdPosition (default) -- vector that specifies legend position.
+%
 %     lgdBox ('off') -- string that specifies whether to show legend box. Options are 'on' or 'off'.
 %
 %     lgdFontSize (12) -- scalar that specifies legend font size.
@@ -60,6 +62,7 @@ arguments
     NameValueArgs.lgdLabels (1,:) {mustBeA(NameValueArgs.lgdLabels,'cell'),mustBeText} = {}
     NameValueArgs.lgdColors (1,:) {mustBeA(NameValueArgs.lgdColors,'cell')} = {}
     NameValueArgs.lgdLocation (1,1) string = 'northeast'
+    NameValueArgs.lgdPosition (1,4) double = []
     NameValueArgs.lgdBox (1,1) string = 'off'
     NameValueArgs.lgdFontSize (1,1) double = 12
     NameValueArgs.lgdLineWidth (1,1) double = 8
@@ -78,6 +81,7 @@ axFontSize = NameValueArgs.axFontSize;
 lgdLabels = NameValueArgs.lgdLabels;
 lgdColors = NameValueArgs.lgdColors;
 lgdLocation = NameValueArgs.lgdLocation;
+lgdPosition = NameValueArgs.lgdPosition;
 lgdBox = NameValueArgs.lgdBox;
 lgdFontSize = NameValueArgs.lgdFontSize;
 lgdLineWidth = NameValueArgs.lgdLineWidth;
@@ -312,6 +316,7 @@ if ~isempty(lgdLabels) && ~isempty(lgdColors)
     if strcmp(lgdBox,'off'), legend boxoff; end
 
     lgdObject.Location = lgdLocation;
+    if ~isempty(lgdPosition), lgdObject.Position = lgdPosition; end
     lgdObject.String = strcat('\fontsize{',num2str(lgdFontSize),'}',lgdObject.String);
     lgdObject.FontSize = lgdFontSize;
     
