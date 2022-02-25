@@ -1,241 +1,169 @@
 
-function [xCoors,ax,labels,colors] = boxPlot(inputData,inputLabels,NameValueArgs)
+function [xCoordinates,lgdObject,handleObject] = boxPlot(inputData,NameValueArgs)
+% boxPlot Plot boxplot from vector or matrix input.
+%
+% Author: Ryan Gorzek
+% 
+% Input Arguments:
+%
+%   inputData -- vector or matrix of data for boxplot. If inputData is a vector, specify
+%   categorical name-value argument inputLabels to plot multiple boxes. If inputData is
+%   a matrix, each box represents a column.
+%
+%   Name-Value Arguments (default):
+%
+%     inputLabels ([]) -- vector of categorical labels for vector input.
+%
+%     groupSize (1) -- scalar that specifies the number of boxes by which to group the data (if grouping).
+%
+%     labelGroup (false) -- logical that specifies whether to shrink the number of x-axis labels to one per group (if grouping).
+%
+%     boxLabels ([1:nBoxes]) -- cell array of strings that specify x-axis labels.
+%
+%     boxColors ([0.7,0.7,0.7]) -- cell array of RGB vectors that specify box colors.
+%
+%     pointSize (30) -- scalar that specifies the size of outlier points.
+%
+%     axFontSize (13) -- scalar that specifies the axes font size.
+%
+%     lgdLabels (none) -- cell array of strings that specify legend labels.
+%
+%     lgdColors (none) -- cell array of RBG vectors that specify legend colors.
+%
+%     lgdLocation ('northeast') -- string that specifies legend location. See MATLAB legend documentation for options.
+%
+%     lgdBox ('off') -- string that specifies whether to show legend box. Options are 'on' or 'off'.
+%
+%     lgdFontSize (12) -- scalar that specifies legend font size.
+%
+%     lgdLineWidth (8) -- scalar that specifies the width of legend markers.
+%
+% Output Arguments:
+%
+%   xCoors -- vector of x-axis coordinates corresponding to each plotted box.
+%
+%   lgdObject -- legend object. See MATLAB legend documentation for more information.
+%
+%   handleObject -- legend handle object, i.e. a graphics array of legend lines and text.
+%
 
 arguments
     
     inputData double
-    inputLabels double
-    NameValueArgs.perGrp (1,1) {mustBeNumeric} = 1
-    NameValueArgs.oneLabGrp = false
-    NameValueArgs.labels (1,:) {mustBeA(NameValueArgs.labels,'cell'),mustBeText} = {}
-    NameValueArgs.colors (1,:) {mustBeA(NameValueArgs.colors,'cell')} = {}
+    NameValueArgs.inputLabels (:,1) double = []
+    NameValueArgs.groupSize (1,1) {mustBeNumeric} = 1
+    NameValueArgs.labelGroup = false
+    NameValueArgs.boxLabels (1,:) {mustBeA(NameValueArgs.boxLabels,'cell'),mustBeText} = {}
+    NameValueArgs.boxColors (1,:) {mustBeA(NameValueArgs.boxColors,'cell')} = {}
+    NameValueArgs.pointSize (1,1) double = 30
+    NameValueArgs.axFontSize (1,1) double = 13
+    NameValueArgs.lgdLabels (1,:) {mustBeA(NameValueArgs.lgdLabels,'cell'),mustBeText} = {}
+    NameValueArgs.lgdColors (1,:) {mustBeA(NameValueArgs.lgdColors,'cell')} = {}
+    NameValueArgs.lgdLocation (1,1) string = 'northeast'
+    NameValueArgs.lgdBox (1,1) string = 'off'
+    NameValueArgs.lgdFontSize (1,1) double = 12
+    NameValueArgs.lgdLineWidth (1,1) double = 8
 
 end
+
+%%%% assign temporary variables for name-value arguments
+
+inputLabels = NameValueArgs.inputLabels;
+groupSize = NameValueArgs.groupSize;
+labelGroup = NameValueArgs.labelGroup;
+boxLabels = NameValueArgs.boxLabels;
+boxColors = NameValueArgs.boxColors;
+pointSize = NameValueArgs.pointSize;
+axFontSize = NameValueArgs.axFontSize;
+lgdLabels = NameValueArgs.lgdLabels;
+lgdColors = NameValueArgs.lgdColors;
+lgdLocation = NameValueArgs.lgdLocation;
+lgdBox = NameValueArgs.lgdBox;
+lgdFontSize = NameValueArgs.lgdFontSize;
+lgdLineWidth = NameValueArgs.lgdLineWidth;
 
 %%%% check for vector or matrix input data
-labels = NameValueArgs.labels;
-colors = NameValueArgs.colors;
 
-if isempty(inputLabels)
+if isempty(inputLabels) % if no inputLabels specified, reshape matrix input into vector and produce labels
     
-    inputLabels = repmat(inputData,1,1);    % replicate inputData mat to get the size of each observation
+    inputLabels = repmat(1:size(inputData,2),[size(inputData,1),1]); % create labels for inputData matrix
     
-    for colIdx=1:size(inputLabels,2)
-        inputLabels(:,colIdx) = colIdx;     % reassign proper label based on column index.
-    end
+    inputLabels = reshape(inputLabels,[],1); % reshape inputLabels into a column vector
+    inputData = reshape(inputData,[],1);    % reshape inputData into a column vector
     
-    inputLabels = reshape(inputLabels,[],1);% reshape inputLabels into a single column vector.
-    inputData = reshape(inputData,[],1);    % reshape inputData into a single column vector.
+elseif ~isempty(inputLabels) && size(inputData,2) ~= 1 % if inputLabels are specified but inputData is not in column vector, reshape
+    
+    inputData = reshape(inputData,[],1);
 
 end
 
-if isempty(labels)
-    labels = cellstr(string(1:numel(unique(inputLabels))));
-end
-if isempty(colors)
-   colors = repmat({[0.65,0.65,0.65]},[1,numel(unique(inputLabels))]); 
-end
-    
+%%%% set default box labels (numbered) and box colors (gray) if not specified
 
-nCats = numel(unique(inputLabels)); % get number of categories to plot based on labels in input
-catLabels = sort(unique(inputLabels),'ascend')';
+if isempty(boxLabels), boxLabels = cellstr(string(1:numel(unique(inputLabels)))); end
+if isempty(boxColors), boxColors = repmat({[0.7,0.7,0.7]},[1,numel(unique(inputLabels))]); end
 
-%%%% assign name-value arguments
+%%%% calculate the number of boxes and groups
 
-if isempty(inputLabels)
-    
-    
-else
+nBoxes = numel(unique(inputLabels)); % get number of boxes to plot based on inputLabels
+nGroups = nBoxes/groupSize; % get number of box groups based on nCats and groupSize
 
+uniqueLabels = sort(unique(inputLabels),'ascend')'; % get unique labels from inputLabels
 
+%%%% throw error if nGroups is not an integer
 
-end
-nGroups = numel(unique(inputLabels))/NameValueArgs.perGrp;
+if rem(nGroups,1) ~= 0, error('Number of input categories is not divisible by number of groups.'); end
 
-% check labels against oneLabGrp
-if NameValueArgs.oneLabGrp == true && numel(labels) > nGroups
-    error('Too many labels for number of groups, did you mean to specify oneLabGrp = true?');
-elseif NameValueArgs.oneLabGrp == true && numel(labels) < nGroups
-    error('Too few labels for number of groups, did you mean to specify oneLabGrp = true?');
+%%%% check boxLabels against nGroups to warn user about specifying labelGroup
+
+if labelGroup == true && numel(boxLabels) > nGroups
+    error('Too many boxLabels for number of groups, did you mean to specify labelGroup = true?');
+elseif labelGroup == true && numel(boxLabels) < nGroups
+    error('Too few boxLabels for number of groups, did you mean to specify labelGroup = true?');
 end
 
-%%%% set colors based on input
-% if you want the same color and label for all members of each group, give labels/colors for each group with empty between them
-% e.g. {'grp1','','grp2'},{[1,0,0],[],[0,0,1]} will make group 1 all red and group 2 all blue
-if NameValueArgs.perGrp ~= 1 && (numel(labels) == nGroups + (nGroups-1) || numel(labels) == nGroups*2) && (numel(colors) == nGroups + (nGroups-1) || numel(colors) == nGroups*2) && ...
-        any(ismember(labels,{''})) && any(cellfun(@isempty,colors)) && NameValueArgs.oneLabGrp == false
-    
-    repLabels = [];
-    repColors = [];
-    for lab = find(~ismember(labels,{''}))
-        repLabels = horzcat(repLabels,repmat(labels(lab),[1,NameValueArgs.perGrp]));
-        repColors = horzcat(repColors,repmat(colors(lab),[1,NameValueArgs.perGrp]));
-    end
-    labels = repLabels;
-    colors = repColors;
-   
-% full labels, repeat colors as above
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == nCats && (numel(colors) == nGroups + (nGroups-1) || numel(colors) == nGroups*2) && ...
-        any(cellfun(@isempty,colors)) && NameValueArgs.oneLabGrp == false
-    
-    repColors = [];
-    for lab = find(cellfun(@isempty,colors) == 0)
-        repColors = horzcat(repColors,repmat(colors(lab),[1,NameValueArgs.perGrp]));
-    end
-    colors = repColors;
-    
-% same set of labels for each group, one color for each group
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == NameValueArgs.perGrp && (numel(colors) == nGroups + (nGroups-1) || numel(colors) == nGroups*2) && ~any(ismember(labels,{''})) && any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == false
+%%%% check whether labels match nGroups if labelGroup = false
 
-    repLabels = [];
-    repColors = [];
+if groupSize ~= 1 && ...
+   numel(boxLabels) == nGroups && ...
+   numel(boxColors) == groupSize && ...
+   labelGroup == false
     
-    repNum = nGroups;
-    repLabels = horzcat(repLabels,repmat(labels,[1,repNum]));
-    for lab = find(cellfun(@isempty,colors) == 0)
-        repColors = horzcat(repColors,repmat(colors(lab),[1,NameValueArgs.perGrp]));
-    end
-    labels = repLabels;
-    colors = repColors;
-    
-% same set of labels for each group, colors for each category
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == NameValueArgs.perGrp && numel(colors) == nCats && ~any(ismember(labels,{''})) && ~any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == false
+    error('Insufficient number of boxLabels, did you mean to specify labelGroup = true?');
 
-    repLabels = [];
-    
-    repNum = nGroups;
-    repLabels = horzcat(repLabels,repmat(labels,[1,repNum]));
-    labels = repLabels;
-    
-% same label for each group, colors for each category
-elseif NameValueArgs.perGrp ~= 1 && (numel(labels) == nGroups + (nGroups-1) || numel(labels) == nGroups*2) && numel(colors) == nCats && any(ismember(labels,{''})) && ~any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == false
-
-    repLabels = [];
-    for lab = find(~ismember(labels,{''}))
-        repLabels = horzcat(repLabels,repmat(labels(lab),[1,NameValueArgs.perGrp]));
-    end
-    labels = repLabels;
-
-% if you want the same color for all members of each group and one label per group, give one label for each group and colors for each group with empty between them
-% e.g. {'grp1','grp2'},{[1,0,0],[],[0,0,1]} will make group 1 all red and group 2 all blue
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == nGroups && (numel(colors) == nGroups + (nGroups-1) || numel(colors) == nGroups*2) && ...
-        ~any(ismember(labels,{''})) && any(cellfun(@isempty,colors)) && NameValueArgs.oneLabGrp == true
-
-    repColors = [];
-    for lab = find(cellfun(@isempty,colors) == 0)
-        repColors = horzcat(repColors,repmat(colors(lab),[1,NameValueArgs.perGrp]));
-    end
-    colors = repColors;
-    
-% if you want the same set of labels and colors and for each group, give labels/colors for all groups with no empty string between them
-% e.g. {'grp1','grp2'},{[1,0,0],[0,0,1]} will make group 1 red and blue, and group 2 red and blue
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == NameValueArgs.perGrp && numel(colors) == NameValueArgs.perGrp && ~any(ismember(labels,{''})) && ~any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == false
-    
-    repLabels = [];
-    repColors = [];
-    
-    repNum = nGroups;
-    repLabels = horzcat(repLabels,repmat(labels,[1,repNum]));
-    repColors = horzcat(repColors,repmat(colors,[1,repNum]));
-
-    labels = repLabels;
-    colors = repColors;
-    
-% if you want the same set of colors for each group, but one label for each group, give one label for each group with colors for each category
-% e.g. {'grp1','grp2'},{[1,0,0],[0,0,1]} will make group 1 red and blue, and group 2 red and blue
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == nGroups && numel(colors) == NameValueArgs.perGrp && ~any(ismember(labels,{''})) && ~any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == true
-
-    repColors = [];
-    
-    repNum = nGroups;
-    repColors = horzcat(repColors,repmat(colors,[1,repNum]));
-
-    colors = repColors;
-    
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == nCats && numel(colors) == NameValueArgs.perGrp && ~any(ismember(labels,{''})) && ~any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == false
-
-    repColors = [];
-    
-    repNum = nGroups;
-    repColors = horzcat(repColors,repmat(colors,[1,repNum]));
-
-    colors = repColors;
-    
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == nGroups && numel(colors) == NameValueArgs.perGrp && ~any(ismember(labels,{''})) && ~any(cellfun(@isempty,colors)) && ...
-        NameValueArgs.oneLabGrp == false
-    
-    error('Insufficient number of labels, did you mean to specify oneLabGrp = true?');
-    
-elseif NameValueArgs.perGrp ~= 1 && numel(labels) == nGroups && (numel(colors) == nGroups + (nGroups-1) || numel(colors) == nGroups*2) && ...
-    ~any(ismember(labels,{''})) && any(cellfun(@isempty,colors)) && NameValueArgs.oneLabGrp == false
-
-    error('Insufficient number of labels, did you mean to specify oneLabGrp = true?');
-    
-elseif NameValueArgs.perGrp ~= 1 && (numel(labels) == nGroups + (nGroups-1) || numel(labels) == nGroups*2) && (numel(colors) == nGroups + (nGroups-1) || numel(colors) == nGroups*2) && ...
-        any(ismember(labels,{''})) && any(cellfun(@isempty,colors)) && NameValueArgs.oneLabGrp == true
-
-    error('Labels contain empty string, did you mean to specify oneLabGrp = true?');
-    
 end
 
-% throw error if data can't be grouped properly
-if rem(nGroups,1) ~= 0
-    error('Number of input categories is not divisible by number of groups.');
-end
+%%%% get x-coordinates for plotting
 
 if nGroups == 1
-
-    % get x-coordinates for plotting
-    xCoors = [0.70:0.65:0.7+(0.65*nCats)-0.65];
-    nGroups = 1;
+    
+    xCoordinates = [0.70:0.65:0.7+(0.65*nCats)-0.65];
    
 else
-        
-    % throw error if data can't be grouped properly
-    if rem(nCats,nGroups) ~= 0
-        error('Number of input categories is not divisible by number of groups.');
-    end
 
-    % generate x coordinates to plot n groups
-    xCoors = [];
-    initCoors = [0.70:0.55:0.70+(0.55*(nCats/nGroups)-0.55)];
-    for grp = 1:nGroups
-        if isempty(xCoors)
-            xCoors = initCoors;
-        else
-            xCoors = horzcat(xCoors,initCoors+(xCoors(end)+0.4));
-        end
-    end
-        
-end
+    xCoordinates = [0.70:0.55:0.70+(0.55*(nBoxes/nGroups)-0.55)]; initCoors = [0.70:0.55:0.70+(0.55*(nBoxes/nGroups)-0.55)];
 
-if numel(labels) < nCats && rem(numel(labels),nGroups) ~= 0
-    error('Labels cannot be properly distributed to groups.');
-elseif numel(labels) == nCats
-    groupLabels = 0;
-else
-    groupLabels = 1;
+    for grp = 2:nGroups, xCoordinates = horzcat(xCoordinates,initCoors+(xCoordinates(end)+0.4)); end
+
 end
 
 %%%% intialize matrices for storing max/min to set axes
-maxMat = zeros(nCats,3); % uQuar, uWhisk, outliersU
-minMat = zeros(nCats,3); % lQuar, lWhisk, outliersL
 
-%%%% plot data
-for cat = catLabels
+maxMat = zeros(nBoxes,3); % uQuar, uWhisk, outliersU
+minMat = zeros(nBoxes,3); % lQuar, lWhisk, outliersL
 
-    catNum = find(catLabels == cat);
+%%%% plot
+
+for cat = uniqueLabels
+
+    catNum = find(uniqueLabels == cat);
     
     clear lQuar uQuar med lWhisk uWhisk outliersU outliersL
 
-    %%%% get data for current category
-    currData = inputData(inputLabels==cat,1);
+    %%%% get data for current box
+    
+    currData = inputData(inputLabels == cat,1);
+    
+    %%%% plot box if there are at least 4 data points
     
     if nnz(~isnan(currData)) > 4
         
@@ -248,50 +176,56 @@ for cat = catLabels
         % get 97.5 percentile of categories
         maxWhisk = uQuar + 1.5*(uQuar-lQuar);
         uWhisk = max(currData(currData < maxWhisk & currData >= uQuar));
+        if isempty(uWhisk), uWhisk = maxWhisk; end
         % get 2.5 percentile of categories
         minWhisk = lQuar - 1.5*(uQuar-lQuar);
         lWhisk = min(currData(currData > minWhisk & currData <= lQuar));
-
-        if isempty(lWhisk)
-            lWhisk = minWhisk;
-        end
-
-        if isempty(uWhisk)
-            uWhisk = maxWhisk;
-        end
+        if isempty(lWhisk), lWhisk = minWhisk; end
+        
+        hold on;
 
         % plot box with bounds at quartiles
-        rectangle('Position',[xCoors(catNum)-0.25 lQuar 0.5 (uQuar-lQuar)],'FaceColor',colors{catNum},'EdgeColor','k','LineWidth',1,'Tag','box')
+        rectangle('Position',[xCoordinates(catNum)-0.25 lQuar 0.5 (uQuar-lQuar)],'FaceColor',boxColors{catNum},'EdgeColor','k','LineWidth',1,'Tag','box');
         % plot left half median line
-        line([xCoors(catNum)-0.25 xCoors(catNum)],[med med],'Color','k','LineWidth',2)
+        line([xCoordinates(catNum)-0.25 xCoordinates(catNum)],[med med],'Color','k','LineWidth',2);
         % plot right half median line
-        line([xCoors(catNum) xCoors(catNum)+0.25],[med med],'Color','k','LineWidth',2)
+        line([xCoordinates(catNum) xCoordinates(catNum)+0.25],[med med],'Color','k','LineWidth',2);
         % plot lower whisker
-        line([xCoors(catNum) xCoors(catNum)],[lQuar lWhisk],'Color','k','LineWidth',0.75)
+        line([xCoordinates(catNum) xCoordinates(catNum)],[lQuar lWhisk],'Color','k','LineWidth',0.75);
         % plot upper whisker
-        line([xCoors(catNum) xCoors(catNum)],[uQuar uWhisk],'Color','k','LineWidth',0.75,'Tag','uwhisk')
+        line([xCoordinates(catNum) xCoordinates(catNum)],[uQuar uWhisk],'Color','k','LineWidth',0.75,'Tag','uwhisk');
         % plot lower whisker bar
-        line([xCoors(catNum)-0.1 xCoors(catNum)+0.1],[lWhisk lWhisk],'Color','k','LineWidth',0.5)
+        line([xCoordinates(catNum)-0.1 xCoordinates(catNum)+0.1],[lWhisk lWhisk],'Color','k','LineWidth',0.5);
         % plot upper whisker bar
-        line([xCoors(catNum)-0.1 xCoors(catNum)+0.1],[uWhisk uWhisk],'Color','k','LineWidth',0.5)
-        hold on
+        line([xCoordinates(catNum)-0.1 xCoordinates(catNum)+0.1],[uWhisk uWhisk],'Color','k','LineWidth',0.5);
+
         %%%% plot outliers
+        
+        % upper
         if any(currData > uWhisk)
-            scatter(xCoors(catNum),currData(currData > uWhisk),40,'filled','MarkerFaceColor',colors{catNum},'MarkerEdgeColor',colors{catNum});
-            hold on
+            
+            scatter(xCoordinates(catNum),currData(currData > uWhisk),pointSize,'filled','MarkerFaceColor',boxColors{catNum},'MarkerEdgeColor',boxColors{catNum});
             outliersU = currData(currData > uWhisk);
+            
         else
+            
             outliersU = nan;
+            
         end
+        
+        % lower
         if any(currData < lWhisk)
-            scatter(xCoors(catNum),currData(currData < lWhisk),40,'filled','MarkerFaceColor',colors{catNum},'MarkerEdgeColor',colors{catNum});
-            hold on
+            
+            scatter(xCoordinates(catNum),currData(currData < lWhisk),pointSize,'filled','MarkerFaceColor',boxColors{catNum},'MarkerEdgeColor',boxColors{catNum});
             outliersL = currData(currData < lWhisk);
+            
         else
+            
             outliersL = nan;
+            
         end
 
-        %%%% store min/max from each category for setting limits
+        %%%% store min/max from each category for setting axis limits
         maxMat(catNum,:) = [uQuar,uWhisk,max(outliersU)];
         minMat(catNum,:) = [lQuar,lWhisk,min(outliersL)];
         
@@ -305,16 +239,17 @@ for cat = catLabels
     
         % get median of categories
         med = median(currData,1,'omitnan');
+        
+        hold on;
 
         % plot left half median line
-        line([xCoors(catNum)-0.25 xCoors(catNum)],[med med],'Color','k','LineWidth',2)
+        line([xCoordinates(catNum)-0.25 xCoordinates(catNum)],[med med],'Color','k','LineWidth',2)
         % plot right half median line
-        line([xCoors(catNum) xCoors(catNum)+0.25],[med med],'Color','k','LineWidth',2)
-        hold on
-        scatter(xCoors(catNum),currData,40,'filled','MarkerFaceColor',colors{catNum},'MarkerEdgeColor',colors{catNum});
-        hold on
+        line([xCoordinates(catNum) xCoordinates(catNum)+0.25],[med med],'Color','k','LineWidth',2)
+        % scatter data points
+        scatter(xCoordinates(catNum),currData,pointSize,'filled','MarkerFaceColor',boxColors{catNum},'MarkerEdgeColor',boxColors{catNum});
 
-        %%%% store min/max from each category for setting limits
+        %%%% store min/max from each category for setting axis limits
         maxMat(catNum,:) = [repmat(max(currData),[1,3])];
         minMat(catNum,:) = [repmat(min(currData),[1,3])];
         
@@ -322,44 +257,67 @@ for cat = catLabels
     
 end
 
-xlim([0.2 xCoors(end)+0.5]);
+%%%% set x-axis limits
+
+xlim([0.2 xCoordinates(end)+0.5]);
+
+%%%% set x-axis tick labels
 
 xLabPos = [];
-switch groupLabels
 
-    case 1
-        
-        for group = 1:(nCats/nGroups):nCats
+if labelGroup == true
 
-            xLabPos = horzcat(xLabPos,median(xCoors(group:group+(nCats/nGroups)-1)));
+    for group = 1:(nCats/nGroups):nCats, xLabPos = horzcat(xLabPos,median(xCoordinates(group:group+(nCats/nGroups)-1))); end
 
-        end
+    set(gca,'xtick',xLabPos); set(gca,'xticklabel',boxLabels);
 
-        set(gca, 'xtick', xLabPos);
-        set(gca, 'xticklabel', labels);
+else
         
-    otherwise
-        
-        set(gca, 'xtick', xCoors);
-        set(gca, 'xticklabel', labels);
-        
+    set(gca,'xtick',xCoordinates); set(gca,'xticklabel',boxLabels);
+
 end
 
-set(gca,'FontSize',15);
-set(gca, 'XColor', 'k', 'YColor', 'k');
-set(gca, 'TickDir', 'out', 'TickLength', [0.01, 0.01]);
+%%%% set axis appearance
+
+set(gca,'FontSize',axFontSize);
+set(gca, 'XColor','k','YColor','k');
+set(gca, 'TickDir','out','TickLength', [0.01, 0.01]);
 set(gca,'box','off');
 set(gcf,'color','w');
 set(gca,'LineWidth',1);
 ax = get(gca);
 
+%%%% set y-axis limits
+
 if ~all(isnan(maxMat),'all')
 
-    % set y limits
-    yUpper = max(maxMat,[],'all');
-    yLower = min(minMat,[],'all');
+    yUpper = max(maxMat,[],'all'); yLower = min(minMat,[],'all');
+    
     yExt = (yUpper-yLower)*0.2;
+    
     ylim([yLower-yExt yUpper+yExt]);
+
+end
+
+%%%% add legend if specified
+
+if ~isempty(lgdLabels) && ~isempty(lgdColors)
+
+    [lgdObject,handleObject,~,~] = legend(lgdLabels);
+    
+    h1 = findobj(handleObject,'Type','line'); set(h1,'LineWidth',lgdLineWidth);
+
+    for col = 1:2:numel(lgdColors), set(h1(iter),'Color',lgdColors{col}); end
+
+    if strcmp(lgdBox,'off'), legend boxoff; end
+
+    lgdObject.Location = lgdLocation;
+    lgdObject.String = strcat('\fontsize{',num2str(lgdFontSize),'}',lgdObject.String);
+    lgdObject.FontSize = lgdFontSize;
+    
+else
+    
+    lgdObject = []; handleObject = [];
 
 end
 

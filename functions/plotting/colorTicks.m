@@ -1,48 +1,69 @@
 
-function tickColors = colorTicks(labels,colors,NameValueArgs)
+function plotLabels = colorTicks(tickLabels,tickColors,NameValueArgs)
+% colorTicks Display or return colored tick labels.
+%
+% Author: Ryan Gorzek
+%
+% Input Arguments:
+%
+%   tickLabels -- cell array of strings that specify tick labels.
+%
+%   tickColors -- cell array of RGB vectors that specify tick label colors.
+%
+%     Name-Value Arguments (default):
+%
+%       task (display) -- string ('display' or 'return') that specifies whether to display tick labels or return cell array of 
+%         strings containing tick labels with concatenated LaTeX color codes. Specifying 'display' also returns ticks labels 
+%         with LaTeX color codes.
+%
+%       axis (x) -- string or cell array of strings ('x', 'y', and/or 'z') that specify the axis or axes on which to display 
+%         colored tick labels.
+%
 
 arguments
     
-    labels (1,:) {mustBeA(labels,'cell')}
-    colors (1,:) {mustBeA(colors,'cell')}
-    NameValueArgs.task {mustBeMember(NameValueArgs.task,{'show','get'})} = 'show'
+    tickLabels (1,:) {mustBeA(tickLabels,'cell')}
+    tickColors (1,:) {mustBeA(tickColors,'cell')}
+    NameValueArgs.task {mustBeMember(NameValueArgs.task,{'display','return'})} = 'display'
     NameValueArgs.axis {mustBeMember(NameValueArgs.axis,{'x','y','z'})} = 'x'
     
 end
-    ax = gca;
+
+    if strcmp(NameValueArgs.task,'display') && ~isempty(findall(0,'Type','Figure')), ax = gca; end
     
-    tickColors = cell(1,numel(colors));
-    for col = 1:numel(colors)
+    colorStrings = cell(1,numel(tickColors));
+    
+    for col = 1:numel(tickColors)
         
-        tickCol = sprintf('olor[rgb]{%.3d %.3d %.3d}',colors{col}(1),colors{col}(2),colors{col}(3));
-        tickColors{col} = ['\c',tickCol];
+        tickCol = sprintf('olor[rgb]{%.3d %.3d %.3d}',tickColors{col}(1),tickColors{col}(2),tickColors{col}(3));
+        colorStrings{col} = strcat('\c',tickCol);
         
     end
 
-    tickColors = strcat(tickColors,labels);
+    plotLabels = strcat(colorStrings,tickLabels);
+    
+    for axisNum = 1:numel(NameValueArgs.axis)
+        
+        if iscell(NameValueArgs.axis), currAxis = NameValueArgs.axis{axisNum}; else, currAxis = NameValueArgs.axis(axisNum); end
 
-    if strcmp(NameValueArgs.task,'show') && isa(ax,'matlab.graphics.chart.HeatmapChart')
+        if strcmp(NameValueArgs.task,'display') && ~isempty(findall(0,'Type','Figure')) && isa(ax,'matlab.graphics.chart.HeatmapChart')
 
-       switch NameValueArgs.axis
-            case 'x'
-                ax.XDisplayLabels{col} = [tickColors{col}];
-            case 'y'
-                ax.YDisplayLabels{col} = [tickColors{col}];
-            case 'z'
-                error('No Z-axis in a heatmap chart.')
+           switch currAxis
+                case 'x', ax.XDisplayLabels = plotLabels; 
+                case 'y', ax.YDisplayLabels = plotLabels;
+                case 'z', error('No Z-axis in a heatmap chart.');
+            end
+
+        elseif strcmp(NameValueArgs.task,'display') && ~isempty(findall(0,'Type','Figure')) && ~isa(ax,'matlab.graphics.chart.HeatmapChart')
+
+            switch currAxis
+                case 'x', ax.XTickLabel = plotLabels;
+                case 'y', ax.YTickLabel = plotLabels;
+                case 'z', ax.ZTickLabel = plotLabels;
+            end
+
         end
-
-    elseif strcmp(NameValueArgs.task,'show')
-
-        switch NameValueArgs.axis
-            case 'x'
-                ax.XTickLabel{col} = [tickColors{col}];
-            case 'y'
-                ax.YTickLabel{col} = [tickColors{col}];
-            case 'z'
-                ax.ZTickLabel{col} = [tickColors{col}];
-        end
-
+    
     end
 
 end
