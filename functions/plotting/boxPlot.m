@@ -34,7 +34,7 @@ function [xCoordinates,lgdObject,handleObject] = boxPlot(inputData,NameValueArgs
 %
 %     lgdPosition (default) -- vector that specifies legend position.
 %
-%     lgdBox ('off') -- string that specifies whether to show legend box. Options are 'on' or 'off'.
+%     lgdBox ('off') -- string that specifies whether to display legend box. Options are 'on' or 'off'.
 %
 %     lgdFontSize (12) -- scalar that specifies legend font size.
 %
@@ -289,7 +289,6 @@ set(gca, 'TickDir','out','TickLength', [0.01, 0.01]);
 set(gca,'box','off');
 set(gcf,'color','w');
 set(gca,'LineWidth',1);
-ax = get(gca);
 
 %%%% set y-axis limits
 

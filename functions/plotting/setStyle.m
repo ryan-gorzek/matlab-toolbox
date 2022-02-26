@@ -8,31 +8,31 @@ function setStyle(NameValueArgs)
 %
 %   Name-Value Arguments (default):
 %
-%     title (none) -- string that specifies plot title
+%     title (none) -- string that specifies plot title.
 %
-%     xlabel (none) -- string that specifies x-axis label
+%     xlabel (none) -- string that specifies x-axis label.
 %
-%     xticks (automatic) -- vector that specifies x-axis tick marks
+%     xticks (automatic) -- vector that specifies x-axis tick marks.
 %
-%     xticklabels (automatic) -- vector of doubles or cell array of strings that specify x-axis tick labels
+%     xticklabels (automatic) -- vector of doubles or cell array of strings that specify x-axis tick labels.
 %
-%     xtickangle (automatic) -- scalar that specifies x-axis tick label angle
+%     xtickangle (automatic) -- scalar that specifies x-axis tick label angle.
 %
-%     xlim (automatic) -- vector that specifies x-axis limits
+%     xlim (automatic) -- vector that specifies x-axis limits.
 %
-%     ylabel (none) -- string that specifies y-axis label
+%     ylabel (none) -- string that specifies y-axis label.
 %
-%     yticks (automatic) -- vector that specifies y-axis tick marks
+%     yticks (automatic) -- vector that specifies y-axis tick marks.
 %
-%     yticklabels (automatic) -- vector of doubles or cell array of strings that specify y-axis tick labels
+%     yticklabels (automatic) -- vector of doubles or cell array of strings that specify y-axis tick labels.
 %
-%     ytickangle (automatic) -- scalar that specifies y-axis tick label angle
+%     ytickangle (automatic) -- scalar that specifies y-axis tick label angle.
 %
-%     ylim (automatic) -- vector that specifies y-axis limits
+%     ylim (automatic) -- vector that specifies y-axis limits.
 %
-%     fontSize (13) -- scalar that specifies font size of axes text
+%     fontSize (13) -- scalar that specifies font size of axes text.
 %
-%     figPosition (automatic) -- vector that specifies figure position
+%     figPosition (automatic) -- vector that specifies figure position.
 %
 
 arguments
