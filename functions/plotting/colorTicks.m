@@ -4,6 +4,8 @@ function plotLabels = colorTicks(tickLabels,tickColors,NameValueArgs)
 %
 % Author: Ryan Gorzek
 %
+% Dependencies: none
+%
 % Input Arguments:
 %
 %   tickLabels -- cell array of strings that specify tick labels.
@@ -22,7 +24,7 @@ function plotLabels = colorTicks(tickLabels,tickColors,NameValueArgs)
 
 arguments
     
-    tickLabels (1,:) {mustBeA(tickLabels,'cell'),mustBeText}
+    tickLabels (1,:) {mustBeA(tickLabels,'cell')}
     tickColors (1,:) {mustBeA(tickColors,'cell')}
     NameValueArgs.task {mustBeMember(NameValueArgs.task,{'display','return'})} = 'display'
     NameValueArgs.axis {mustBeMember(NameValueArgs.axis,{'x','y','z'})} = 'x'

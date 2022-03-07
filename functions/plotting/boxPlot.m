@@ -3,6 +3,8 @@ function [xCoordinates,lgdObject,handleObject] = boxPlot(inputData,NameValueArgs
 % boxPlot Plot boxplot from vector or matrix input.
 %
 % Author: Ryan Gorzek
+%
+% Dependencies: none
 % 
 % Input Arguments:
 %
@@ -32,9 +34,7 @@ function [xCoordinates,lgdObject,handleObject] = boxPlot(inputData,NameValueArgs
 %
 %     lgdLocation ('northeast') -- string that specifies legend location. See MATLAB legend documentation for options.
 %
-%     lgdPosition (default) -- vector that specifies legend position.
-%
-%     lgdBox ('off') -- string that specifies whether to display legend box. Options are 'on' or 'off'.
+%     lgdBox ('off') -- string that specifies whether to show legend box. Options are 'on' or 'off'.
 %
 %     lgdFontSize (12) -- scalar that specifies legend font size.
 %
@@ -53,8 +53,8 @@ arguments
     
     inputData double
     NameValueArgs.inputLabels (:,1) double = []
-    NameValueArgs.groupSize (1,1) double = 1
-    NameValueArgs.labelGroup logical = false
+    NameValueArgs.groupSize (1,1) {mustBeNumeric} = 1
+    NameValueArgs.labelGroup = false
     NameValueArgs.boxLabels (1,:) {mustBeA(NameValueArgs.boxLabels,'cell'),mustBeText} = {}
     NameValueArgs.boxColors (1,:) {mustBeA(NameValueArgs.boxColors,'cell')} = {}
     NameValueArgs.pointSize (1,1) double = 30
@@ -62,7 +62,6 @@ arguments
     NameValueArgs.lgdLabels (1,:) {mustBeA(NameValueArgs.lgdLabels,'cell'),mustBeText} = {}
     NameValueArgs.lgdColors (1,:) {mustBeA(NameValueArgs.lgdColors,'cell')} = {}
     NameValueArgs.lgdLocation (1,1) string = 'northeast'
-    NameValueArgs.lgdPosition (1,4) double = []
     NameValueArgs.lgdBox (1,1) string = 'off'
     NameValueArgs.lgdFontSize (1,1) double = 12
     NameValueArgs.lgdLineWidth (1,1) double = 8
@@ -81,7 +80,6 @@ axFontSize = NameValueArgs.axFontSize;
 lgdLabels = NameValueArgs.lgdLabels;
 lgdColors = NameValueArgs.lgdColors;
 lgdLocation = NameValueArgs.lgdLocation;
-lgdPosition = NameValueArgs.lgdPosition;
 lgdBox = NameValueArgs.lgdBox;
 lgdFontSize = NameValueArgs.lgdFontSize;
 lgdLineWidth = NameValueArgs.lgdLineWidth;
@@ -289,6 +287,7 @@ set(gca, 'TickDir','out','TickLength', [0.01, 0.01]);
 set(gca,'box','off');
 set(gcf,'color','w');
 set(gca,'LineWidth',1);
+ax = get(gca);
 
 %%%% set y-axis limits
 
@@ -315,7 +314,6 @@ if ~isempty(lgdLabels) && ~isempty(lgdColors)
     if strcmp(lgdBox,'off'), legend boxoff; end
 
     lgdObject.Location = lgdLocation;
-    if ~isempty(lgdPosition), lgdObject.Position = lgdPosition; end
     lgdObject.String = strcat('\fontsize{',num2str(lgdFontSize),'}',lgdObject.String);
     lgdObject.FontSize = lgdFontSize;
     

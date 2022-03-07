@@ -4,6 +4,8 @@ function heatmapObject = heatMap(inputData,NameValueArgs)
 %
 % Author: Ryan Gorzek
 %
+% Dependencies: none
+%
 % Input Arugments:
 %
 %   inputData -- vector or matrix of data for heatmap.
